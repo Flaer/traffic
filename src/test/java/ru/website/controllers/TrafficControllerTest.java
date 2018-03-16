@@ -7,20 +7,17 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import ru.website.data.AsyncSaver;
 import ru.website.data.TrafficService;
 import ru.website.data.model.Visit;
 import ru.website.responses.ExternalStatistic;
 import ru.website.responses.Statistic;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Created by libragimov on 16.03.2018.
@@ -34,6 +31,9 @@ public class TrafficControllerTest {
     @MockBean
     private TrafficService trafficService;
 
+    @MockBean
+    private AsyncSaver saver;
+
 
     @Test
     public void visitCorrectResponse() throws Exception {
@@ -43,7 +43,7 @@ public class TrafficControllerTest {
                 trafficService).calculateDailyStatistic();
 
         Mockito.doNothing().when(
-                trafficService).saveVisit(Mockito.any(Visit.class));
+                saver).saveVisit(Mockito.any(Visit.class));
 
         String exampleVisit = "{\"userId\":\"admin\",\"pageId\":\"about\"}";
 
@@ -54,12 +54,13 @@ public class TrafficControllerTest {
 
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 
-        MockHttpServletResponse response = result.getResponse();
-        assertEquals("http://localhost/statistics",
-                response.getHeader(HttpHeaders.LOCATION));
+        String exampleExtStatistic = "{\"uniqueUsersAmount\":1,\"visitsAmount\":1}";
+
+        JSONAssert.assertEquals(exampleExtStatistic, result.getResponse()
+                .getContentAsString(), false);
 
         Mockito.verify(trafficService).calculateDailyStatistic();
-        Mockito.verify(trafficService).saveVisit(Mockito.any(Visit.class));
+        Mockito.verify(saver).saveVisit(Mockito.any(Visit.class));
     }
 
     @Test
@@ -74,8 +75,6 @@ public class TrafficControllerTest {
                 MediaType.APPLICATION_JSON);
 
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
-
-        System.out.println(result.getResponse());
 
         String exampleExtStatistic = "{\"uniqueUsersAmount\":2,\"visitsAmount\":14,\"regularUsersAmount\":1}";
 

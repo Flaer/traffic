@@ -2,6 +2,7 @@ package ru.website.data;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.website.data.model.Page;
 import ru.website.data.model.User;
 import ru.website.data.model.Visit;
@@ -32,6 +33,7 @@ public class TrafficServiceImpl implements TrafficService {
         this.visitsRepository = visitsRepository;
     }
 
+    @Transactional
     public void saveVisit(Visit visit) {
         // todo throw exception if user not found
         // todo throw exception if page not found

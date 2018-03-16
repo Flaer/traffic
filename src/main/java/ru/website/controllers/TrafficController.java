@@ -3,6 +3,7 @@ package ru.website.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
+import ru.website.data.AsyncSaver;
 import ru.website.data.TrafficService;
 import ru.website.data.model.Visit;
 import ru.website.responses.ExternalStatistic;
@@ -20,19 +21,14 @@ public class TrafficController {
     @Autowired
     TrafficService trafficService;
 
+    @Autowired
+    AsyncSaver saver;
+
     @PostMapping(value = "/visit")
     public Statistic visit(@RequestBody Visit visit) {
-        trafficService.saveVisit(visit);
+        saver.saveVisit(visit);
         return trafficService.calculateDailyStatistic();
     }
-
-    /*
-        @GetMapping(value = "/visit")
-    public Statistic visit(@RequestParam(value="userId") String userId, @RequestParam(value="pageId") String pageId) {
-        trafficService.saveVisit(userId, pageId);
-        return trafficService.calculateDailyStatistic();
-    }
-     */
 
     @GetMapping(value = "/statistics")
     public ExternalStatistic statistics(@RequestParam("start")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
