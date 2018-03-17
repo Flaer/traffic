@@ -10,7 +10,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.Executor;
 
-//@EnableJpaRepositories
 @SpringBootApplication
 @EnableAsync
 public class WebsiteTrafficApplication {
@@ -29,8 +28,8 @@ public class WebsiteTrafficApplication {
 	@Bean
 	public Executor asyncExecutor() {
 		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-		executor.setCorePoolSize(2);
-		executor.setMaxPoolSize(2);
+		executor.setCorePoolSize(4);
+		executor.setMaxPoolSize(4);
 		executor.setQueueCapacity(500);
 		executor.setThreadNamePrefix("DBSave-");
 		executor.initialize();
