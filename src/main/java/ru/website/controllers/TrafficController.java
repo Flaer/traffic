@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.website.data.AsyncSaver;
 import ru.website.data.TrafficService;
 import ru.website.data.model.Visit;
+import ru.website.exceptions.WrongArgumentsException;
 import ru.website.responses.ExternalStatistic;
 import ru.website.responses.Statistic;
 
@@ -33,6 +34,8 @@ public class TrafficController {
     @GetMapping(value = "/statistics")
     public ExternalStatistic statistics(@RequestParam("start")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
                                     @RequestParam("end") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        if(startDate.isAfter(endDate))
+            throw new WrongArgumentsException("start date greater then end date.");
         LocalDateTime start = startDate.atStartOfDay();
         LocalDateTime end = endDate.atStartOfDay();
         return trafficService.calculateFullStatistic(start, end);

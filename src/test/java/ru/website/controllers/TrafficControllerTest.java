@@ -19,6 +19,8 @@ import ru.website.data.model.Visit;
 import ru.website.responses.ExternalStatistic;
 import ru.website.responses.Statistic;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 /**
  * Created by libragimov on 16.03.2018.
  */
@@ -82,5 +84,20 @@ public class TrafficControllerTest {
                 .getContentAsString(), false);
 
         Mockito.verify(trafficService).calculateFullStatistic(Mockito.any(), Mockito.any());
+    }
+
+    @Test
+    public void startDateGreaterThenEndDate() throws Exception {
+
+        ExternalStatistic mockExternalStatistic = new ExternalStatistic(2L, 14L, 1L);
+        Mockito.doReturn(mockExternalStatistic).when(
+                trafficService).calculateFullStatistic(Mockito.any(), Mockito.any());
+
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.get(
+                "/statistics?start=2018-03-21&end=2018-03-17").accept(
+                MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(requestBuilder)
+                .andExpect(status().isBadRequest());
     }
 }
